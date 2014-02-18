@@ -29,6 +29,9 @@ case class Index(dbcode: String,id:String,pId:String,name:String,isParent:Boolea
 
 case class Moment(dimension:String, dbcode:String, value: String)
 
+case class Region(id:String,name:String)
+
+
 object Data {
 
   val simple = {
@@ -89,6 +92,13 @@ object Data {
 
 object Index {
 
+  val region = {
+      get[String]("region.id") ~
+      get[String]("region.name") map {
+      case id ~ name => Region(id, name)
+    }
+  }
+
   def insert(values: Seq[Index]) = {
     DB.withConnection {
       implicit connection =>
@@ -139,6 +149,17 @@ object Index {
         ).on(
             'dbcode -> dbcode
           ).as(scalar[String] *)
+    }
+  }
+
+  def fetchRegion():Seq[Region] = {
+    DB.withConnection {
+      implicit connection =>
+        SQL(
+          """
+          select id,name from `region`
+          """
+        ).as(region *)
     }
   }
 }

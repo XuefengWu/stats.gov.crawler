@@ -2,7 +2,11 @@ package actors
 
 import play.api.libs.json.{JsArray, JsValue}
 import akka.actor.{ActorRef, Actor, Props}
-import models.{Index, sj, zb, Moment}
+import models._
+import actors.IndexValue
+import actors.DataGet
+import play.api.libs.json.JsArray
+import actors.InitValue
 
 case class InitValue(dimension: String, dbcode: String, result: JsValue)
 
@@ -25,9 +29,16 @@ class InitActor(wsActor: ActorRef) extends Actor {
             indexId <- Index.fetchDataIndexId(dbcode)
             date <- inits.map(_.value)
           } {
-            wsActor ! DataGet("l", dbcode, indexId, "000000", s"-1,$date", "000000", "region")
+            fetchData("l",dbcode,"000000",indexId,date)
           }
         } else if (dbcode == "fsndks" | dbcode == "fsjdks" | dbcode == "fsydks") {
+          for {
+            indexId <- Index.fetchDataIndexId(dbcode)
+            date <- inits.map(_.value)
+            region <- Index.fetchRegion()
+          } {
+            fetchData("l",dbcode,region.id,indexId,date)
+          }
           println(dbcode)
         }
 
@@ -37,4 +48,11 @@ class InitActor(wsActor: ActorRef) extends Actor {
 
     }
   }
+
+  private def fetchData(a:String, dbcode:String,regionId:String,indexId:String,date:String):Unit = {
+    if(Data.isNotExist(Data("l",dbcode,regionId,indexId,date,0))) {
+      wsActor ! DataGet("l", dbcode, indexId, regionId, s"-1,$date",regionId, "region")
+    }
+  }
+
 }
