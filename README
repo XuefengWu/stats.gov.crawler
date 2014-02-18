@@ -1,0 +1,20 @@
+This is a crawler for data.stats.gov.cn
+=====================================
+
+## Setup
+1. Type "./sbt" in the directory. This will download the internet, and run sbt.
+2. Type "run".  This will compile everything and launch the server on port 9000.
+
+## SBT commands
+From within the SBT prompt, there are stacks of commands. Here are some useful ones:
+* h2-browser - browse the contents of database. First from your console start bare 'play' console, run h2-browser and finally run your app (withinh the same play console)
+* run  - As mentioned above, this will start the server.  It should hot-load Scala code changes.
+
+## Start
+sudo /home/twer/utils/play-2.2.1/play "start -Dhttp.port=80 -Dconfig.resource=prod.conf"
+
+## IDE
+* I've used the Eclipse plugin and it's very good these days. "sbt eclipse" will create your Eclipse project; you can them import it with File > Import.  However, I recommend downloading the [Scala Eclipse IDE](http://scala-ide.org/) separately, rather than adding the Scala plugin to your existing Eclipse.  This should eliminate version incompatibilities and inter-plugin warfare.
+* Intellij is supposed to be good too; you can generate Intellij files by typing "sbt idea".
+* You can find Scala Vim colors [here](https://github.com/scala/scala-dist/tree/master/tool-support/src/vim),
+* For Emacs there is the apparently excellent [ENSIME](https://github.com/aemoncannon/ensime).
