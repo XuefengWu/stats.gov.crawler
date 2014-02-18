@@ -10,26 +10,35 @@ import anorm.SqlParser._
 import scala.language.postfixOps
 
 trait DBCode
+
 case object hgydks extends DBCode
+
 case object hgjdks extends DBCode
+
 case object hgndks extends DBCode
+
 case object fsydks extends DBCode
+
 case object fsjdks extends DBCode
+
 case object fsndks extends DBCode
 
 trait Dimension
+
 case object reg extends Dimension
+
 case object sj extends Dimension
+
 case object zb extends Dimension
 
 
 case class Data(a: String, decode: String, regin: String, index: String, date: String, value: Double)
 
-case class Index(dbcode: String,id:String,pId:String,name:String,isParent:Boolean,ifData: Option[Int])
+case class Index(dbcode: String, id: String, pId: String, name: String, isParent: Boolean, ifData: Option[Int])
 
-case class Moment(dimension:String, dbcode:String, value: String)
+case class Moment(dimension: String, dbcode: String, value: String)
 
-case class Region(id:String,name:String)
+case class Region(id: String, name: String)
 
 
 object Data {
@@ -93,114 +102,128 @@ object Data {
 object Index {
 
   val region = {
-      get[String]("region.id") ~
+    get[String]("region.id") ~
       get[String]("region.name") map {
       case id ~ name => Region(id, name)
     }
   }
 
-  def insert(values: Seq[Index]) = {
-    DB.withConnection {
-      implicit connection =>
-        val insertQuery = SQL( """insert into index(dbcode,id,pid,name,isParent,ifData) values (
-                                {dbcode},{id},{pid},{name},{isParent},{ifData})"""
-        )
+  def byteToBoolean(isParent: Byte):Boolean = isParent == 1
 
-        values.foreach {
-          elem =>
-            if (isNotExist(elem)) {
-              insertQuery.on(
-                'dbcode -> elem.dbcode,
-                'id -> elem.id,
-                'pid -> elem.pId,
-                'name -> elem.name,
-                'isParent -> elem.isParent,
-                'ifData -> elem.ifData
-              ).executeUpdate()
-            }
-        }
+  val simple = {
+    get[String]("index.dbcode") ~
+      get[String]("index.id") ~
+      get[String]("index.pid") ~
+      get[String]("index.name") ~
+      get[Byte]("index.isParent") ~
+      get[Int]("index.ifData") map {
+      case dbcode ~ id ~ pid ~ name ~ isParent ~ ifData => Index(dbcode, id, pid, name, byteToBoolean(isParent), Some(ifData))
     }
   }
 
-  def isNotExist(elem: Index) = {
-    DB.withConnection {
-      implicit connection =>
-        val totalRows = SQL(
-          """
+    def insert(values: Seq[Index]) = {
+      DB.withConnection {
+        implicit connection =>
+          val insertQuery = SQL( """insert into index(dbcode,id,pid,name,isParent,ifData) values (
+                                {dbcode},{id},{pid},{name},{isParent},{ifData})"""
+          )
+
+          values.foreach {
+            elem =>
+              if (isNotExist(elem)) {
+                insertQuery.on(
+                  'dbcode -> elem.dbcode,
+                  'id -> elem.id,
+                  'pid -> elem.pId,
+                  'name -> elem.name,
+                  'isParent -> elem.isParent,
+                  'ifData -> elem.ifData
+                ).executeUpdate()
+              }
+          }
+      }
+    }
+
+    def isNotExist(elem: Index) = {
+      DB.withConnection {
+        implicit connection =>
+          val totalRows = SQL(
+            """
           select count(id) from `index`
           where id = {id} and dbcode = {dbcode}
-          """
-        ).on(
-            'id -> elem.id,
-            'dbcode -> elem.dbcode
-          ).as(scalar[Long].single)
-        totalRows == 0
+            """
+          ).on(
+              'id -> elem.id,
+              'dbcode -> elem.dbcode
+            ).as(scalar[Long].single)
+          totalRows == 0
+      }
     }
-  }
 
-  def fetchDataIndexId(dbcode: String): Seq[String] = {
-    DB.withConnection {
-      implicit connection =>
-        SQL(
-          """
-          select id from `index`
+    def fetchDataIndexs(dbcode: String): Seq[Index] = {
+      DB.withConnection {
+        implicit connection =>
+          SQL(
+            """
+          select * from `index`
           where dbcode = {dbcode} and ifdata = 1
-          """
-        ).on(
-            'dbcode -> dbcode
-          ).as(scalar[String] *)
+          order by id
+            """
+          ).on(
+              'dbcode -> dbcode
+            ).as(simple *)
+      }
     }
-  }
 
-  def fetchRegion():Seq[Region] = {
-    DB.withConnection {
-      implicit connection =>
-        SQL(
-          """
+    def fetchRegion(): Seq[Region] = {
+      DB.withConnection {
+        implicit connection =>
+          SQL(
+            """
           select id,name from `region`
-          """
-        ).as(region *)
+            """
+          ).as(region *)
+      }
     }
   }
-}
 
-object Moment {
+  object Moment {
 
-  def insert(values: Seq[Moment]) = {
-    DB.withConnection {
-      implicit connection =>
-        val insertQuery = SQL( """insert into moment(dimension,dbcode,`value`) values (
+    def insert(values: Seq[Moment]) = {
+      DB.withConnection {
+        implicit connection =>
+          val insertQuery = SQL( """insert into moment(dimension,dbcode,`value`) values (
                                 {dimension},{dbcode},{value})"""
-        )
+          )
 
-        values.foreach {
-          elem =>
-            if (isNotExist(elem)) {
-              insertQuery.on(
-                'dimension -> elem.dimension,
-                'dbcode -> elem.dbcode,
-                'value -> elem.value
-              ).executeUpdate()
-            }
-        }
+          values.foreach {
+            elem =>
+              if (isNotExist(elem)) {
+                insertQuery.on(
+                  'dimension -> elem.dimension,
+                  'dbcode -> elem.dbcode,
+                  'value -> elem.value
+                ).executeUpdate()
+              }
+          }
+      }
     }
-  }
 
-  def isNotExist(elem: Moment) = {
-    DB.withConnection {
-      implicit connection =>
-        val totalRows = SQL(
-          """
+    def isNotExist(elem: Moment) = {
+      DB.withConnection {
+        implicit connection =>
+          val totalRows = SQL(
+            """
           select count(id) from `moment`
           where dimension = {dimension} and dbcode = {dbcode} and `value` = {value}
-          """
-        ).on(
-            'dimension -> elem.dimension,
-            'dbcode -> elem.dbcode,
-            'value -> elem.value
-          ).as(scalar[Long].single)
-        totalRows == 0
+            """
+          ).on(
+              'dimension -> elem.dimension,
+              'dbcode -> elem.dbcode,
+              'value -> elem.value
+            ).as(scalar[Long].single)
+          totalRows == 0
+      }
     }
-  }
 
-}
+  }

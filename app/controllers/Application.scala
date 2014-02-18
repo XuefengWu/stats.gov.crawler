@@ -1,14 +1,20 @@
 package controllers
 
-import play.api._
 import play.api.mvc._
 import akka.actor.{Props, ActorSystem}
-import actors.{DataGet, IndexPost, InitGet, WGetActor}
+import actors.{DataGet, InitGet, WGetActor}
+import models.Index
+import play.api.libs.json.Json
 
 object Application extends Controller {
 
-  def index = Action {
+  implicit val indexWriter = Json.writes[Index]
 
+  def index = Action {
+    Ok(views.html.index("Gov stat index"))
+  }
+
+  def crawler = Action {
     val actor = ActorSystem("MyActors").actorOf(Props[WGetActor])
     actor ! InitGet("zb", "hgydks")
     actor ! InitGet("zb", "hgjdks")
@@ -27,8 +33,13 @@ object Application extends Controller {
     actor ! InitGet("sj", "fsndks")
 
     actor ! DataGet("l", "hgndks", "A050101", "000000", "-1,1983", "000000", "region")
+    Ok("starting...")
+  }
 
-    Ok(views.html.index("Your new application is ready."))
+
+  def indexs = Action {
+    val indexs = Index.fetchDataIndexs("hgndks")
+    Ok(Json.toJson(indexs))
   }
 
 }

@@ -1,12 +1,9 @@
 package actors
 
-import play.api.libs.json.{JsArray, JsValue}
+import play.api.libs.json.JsValue
 import akka.actor.{ActorRef, Actor, Props}
 import models._
-import actors.IndexValue
-import actors.DataGet
 import play.api.libs.json.JsArray
-import actors.InitValue
 
 case class InitValue(dimension: String, dbcode: String, result: JsValue)
 
@@ -26,14 +23,14 @@ class InitActor(wsActor: ActorRef) extends Actor {
         Moment.insert(inits)
         if (dbcode == "hgndks" | dbcode == "hgjdks" | dbcode == "hgydks") {
           for {
-            indexId <- Index.fetchDataIndexId(dbcode)
+            indexId <- Index.fetchDataIndexs(dbcode).map(_.id)
             date <- inits.map(_.value)
           } {
             fetchData("l",dbcode,"000000",indexId,date)
           }
         } else if (dbcode == "fsndks" | dbcode == "fsjdks" | dbcode == "fsydks") {
           for {
-            indexId <- Index.fetchDataIndexId(dbcode)
+            indexId <- Index.fetchDataIndexs(dbcode).map(_.id)
             date <- inits.map(_.value)
             region <- Index.fetchRegion()
           } {
