@@ -116,7 +116,7 @@ object Index {
       get[String]("pid") ~
       get[String]("name") ~
       get[Boolean]("isParent") ~
-      get[Option[Int]]("`index`.ifData") map {
+      get[Option[Int]]("ifData") map {
       case dbcode ~ id ~ pid ~ name ~ isParent ~ ifData => Index(dbcode, id, pid, name, isParent, ifData)
     }
   }
