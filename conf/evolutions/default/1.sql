@@ -8,7 +8,7 @@ CREATE TABLE `moment` (
 `dbcode` VARCHAR(32) NOT NULL,
 `value` TEXT(512) NOT NULL,
 PRIMARY KEY (`id`)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `index` (
 `dbcode` VARCHAR(32) NOT NULL,
@@ -17,7 +17,7 @@ CREATE TABLE `index` (
 `name` VARCHAR(32) NOT NULL,
 `isParent` tinyint(1)  NOT NULL,
 `ifData` INT NULL
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 
@@ -30,13 +30,13 @@ CREATE TABLE `data` (
 `date` VARCHAR(32) NOT NULL,
 `value` DOUBLE NOT NULL,
 PRIMARY KEY (`id`)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `region` (
 `id`  VARCHAR(32),
 `name` VARCHAR(32) NOT NULL,
 PRIMARY KEY (`id`)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 # --- !Downs
 
