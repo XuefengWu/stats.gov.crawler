@@ -116,8 +116,8 @@ object Index {
       get[String]("`index`.pid") ~
       get[String]("`index`.name") ~
       get[Byte]("`index`.isParent") ~
-      get[Int]("`index`.ifData") map {
-      case dbcode ~ id ~ pid ~ name ~ isParent ~ ifData => Index(dbcode, id, pid, name, byteToBoolean(isParent), Some(ifData))
+      get[Option[Int]]("`index`.ifData") map {
+      case dbcode ~ id ~ pid ~ name ~ isParent ~ ifData => Index(dbcode, id, pid, name, byteToBoolean(isParent), ifData)
     }
   }
 

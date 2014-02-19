@@ -16,7 +16,7 @@ CREATE TABLE `index` (
 `pid` VARCHAR(32) NOT NULL,
 `name` VARCHAR(32) NOT NULL,
 `isParent` tinyint(1)  NOT NULL,
-`ifData` INT NOT NULL
+`ifData` INT NULL
 );
 
 
