@@ -108,16 +108,16 @@ object Index {
     }
   }
 
-  def byteToBoolean(isParent: Byte):Boolean = isParent == 1
+  implicit def byteToBoolean(isParent: Byte):Boolean = isParent == 1
 
   val simple = {
     get[String]("dbcode") ~
       get[String]("id") ~
       get[String]("pid") ~
       get[String]("name") ~
-      get[Byte]("isParent") ~
+      get[Boolean]("isParent") ~
       get[Option[Int]]("`index`.ifData") map {
-      case dbcode ~ id ~ pid ~ name ~ isParent ~ ifData => Index(dbcode, id, pid, name, byteToBoolean(isParent), ifData)
+      case dbcode ~ id ~ pid ~ name ~ isParent ~ ifData => Index(dbcode, id, pid, name, isParent, ifData)
     }
   }
 
