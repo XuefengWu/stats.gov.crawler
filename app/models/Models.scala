@@ -111,12 +111,12 @@ object Index {
   def byteToBoolean(isParent: Byte):Boolean = isParent == 1
 
   val simple = {
-    get[String]("index.dbcode") ~
-      get[String]("index.id") ~
-      get[String]("index.pid") ~
-      get[String]("index.name") ~
-      get[Byte]("index.isParent") ~
-      get[Int]("index.ifData") map {
+    get[String]("`index`.dbcode") ~
+      get[String]("`index`.id") ~
+      get[String]("`index`.pid") ~
+      get[String]("`index`.name") ~
+      get[Byte]("`index`.isParent") ~
+      get[Int]("`index`.ifData") map {
       case dbcode ~ id ~ pid ~ name ~ isParent ~ ifData => Index(dbcode, id, pid, name, byteToBoolean(isParent), Some(ifData))
     }
   }
@@ -124,7 +124,7 @@ object Index {
     def insert(values: Seq[Index]) = {
       DB.withConnection {
         implicit connection =>
-          val insertQuery = SQL( """insert into index(dbcode,id,pid,name,isParent,ifData) values (
+          val insertQuery = SQL( """insert into `index`(dbcode,id,pid,name,isParent,ifData) values (
                                 {dbcode},{id},{pid},{name},{isParent},{ifData})"""
           )
 
