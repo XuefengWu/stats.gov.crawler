@@ -37,3 +37,4 @@ INSERT INTO region (id,name) VALUES ('650000','新疆维吾尔自治')
 
 
 # --- !Downs
+DELETE FROM region;

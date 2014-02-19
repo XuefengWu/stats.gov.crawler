@@ -40,7 +40,7 @@ PRIMARY KEY (`id`)
 
 # --- !Downs
 
-DROP TABLE `init`;
+DROP TABLE `moment`;
 DROP TABLE `index`;
 DROP TABLE `data`;
 DROP TABLE `region`;

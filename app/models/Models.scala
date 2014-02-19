@@ -47,7 +47,7 @@ object Data {
     get[String]("data.a") ~
       get[String]("data.decode") ~
       get[String]("data.regin") ~
-      get[String]("data.index") ~
+      get[String]("data.`index`") ~
       get[String]("data.`date`") ~
       get[Double]("data.`value`") map {
       case a ~ decode ~ regin ~ index ~ date ~ value => Data(a, decode, regin, index, date, value)
@@ -57,7 +57,7 @@ object Data {
   def insert(values: Seq[Data]) = {
     DB.withConnection {
       implicit connection =>
-        val insertQuery = SQL( """insert into data(a,decode,regin,index,`date`,`value`) values (
+        val insertQuery = SQL( """insert into data(a,decode,regin,`index`,`date`,`value`) values (
                              {a},{decode},{regin},{index},{date},{value})"""
         )
 
@@ -83,7 +83,7 @@ object Data {
         val totalRows = SQL(
           """
           select count(id) from data
-          where a = {a} and decode = {decode} and regin = {regin} and index = {index} and date = {date}
+          where a = {a} and decode = {decode} and regin = {regin} and `index` = {index} and date = {date}
           """
         ).on(
             'a -> elem.a,
@@ -111,11 +111,11 @@ object Index {
   def byteToBoolean(isParent: Byte):Boolean = isParent == 1
 
   val simple = {
-    get[String]("`index`.dbcode") ~
-      get[String]("`index`.id") ~
-      get[String]("`index`.pid") ~
-      get[String]("`index`.name") ~
-      get[Byte]("`index`.isParent") ~
+    get[String]("dbcode") ~
+      get[String]("id") ~
+      get[String]("pid") ~
+      get[String]("name") ~
+      get[Byte]("isParent") ~
       get[Option[Int]]("`index`.ifData") map {
       case dbcode ~ id ~ pid ~ name ~ isParent ~ ifData => Index(dbcode, id, pid, name, byteToBoolean(isParent), ifData)
     }
