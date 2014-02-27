@@ -18,8 +18,13 @@ class DataActor extends Actor {
         val values = s.split("\",\"").map { v =>
             val vs = v.replaceAll("\\\"", "").split(":")
             val keys = vs(0).split("_")
-            Data(a, decode, regin, keys(0), keys(2), vs(1).replace(",", "").toDouble)
-        }
+            if(keys.length > 2){
+              Some(Data(a, decode, regin, keys(0), keys(2), vs(1).replace(",", "").toDouble))
+            } else {
+              println("WARN data:"+v)
+              None
+            }
+        }.filter(_.isDefined).map(_.get)
 
         Data.insert(values)
       }
