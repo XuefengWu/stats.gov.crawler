@@ -34,7 +34,7 @@ case object zb extends Dimension
 
 case class Data(a: String, decode: String, regin: String, index: String, date: String, value: Double)
 
-case class Index(dbcode: String, id: String, pId: String, name: String, isParent: Boolean, ifData: Option[Int])
+case class Index(dbcode: String, id: String, pId: String, name: String, isParent: Boolean, ifData: Option[Int], unit: Option[String] = None)
 
 case class Moment(dimension: String, dbcode: String, value: String)
 
@@ -116,8 +116,9 @@ object Index {
       get[String]("pid") ~
       get[String]("name") ~
       get[Boolean]("isParent") ~
-      get[Option[Int]]("ifData") map {
-      case dbcode ~ id ~ pid ~ name ~ isParent ~ ifData => Index(dbcode, id, pid, name, isParent, ifData)
+      get[Option[Int]]("ifData") ~
+      get[Option[String]]("unit") map {
+      case dbcode ~ id ~ pid ~ name ~ isParent ~ ifData ~ unit => Index(dbcode, id, pid, name, isParent, ifData,unit)
     }
   }
 
@@ -185,6 +186,39 @@ object Index {
           ).as(region *)
       }
     }
+
+    def getIndex(dbcode: String, id:String): Option[Index] = {
+      DB.withConnection {
+        implicit connection =>
+          SQL(
+            """
+          select * from `index`
+          where dbcode = {dbcode} and id = {id}
+            """
+          ).on(
+              'dbcode -> dbcode,
+              'id -> id
+            ).as(simple.singleOpt)
+      }
+    }
+
+    def updateUnit(dbcode: String, id: String, unit: String) = {
+      DB.withConnection {
+        implicit connection =>
+          SQL(
+            """
+          update `index` set `unit` = {unit}
+          where dbcode = {dbcode} and id = {id}
+            """
+          ).on(
+              'dbcode -> dbcode,
+              'id -> id,
+              'unit -> unit
+            ).executeUpdate()
+      }
+
+    }
+
   }
 
   object Moment {

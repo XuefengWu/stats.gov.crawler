@@ -61,7 +61,10 @@ class WGetActor extends Actor {
         case Success(res:Response) => {
           val dataActor = context.actorOf(DataActor.props())
           Try(res.json) match {
-            case Success(json) => dataActor ! DataValue(a,m,region, res.json \ "tableData")
+            case Success(json) => {
+              dataActor ! DataValue(a,m,region, res.json \ "tableData")
+              dataActor ! UnitValue(m,res.json \ "value" \ "index")
+            }
             case Failure(_) => if(count < 3) {context.self ! DataGet(a,m,index,region,time,selectId,third,count + 1)}
           }
 

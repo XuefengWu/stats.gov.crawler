@@ -15,6 +15,7 @@ CREATE TABLE `index` (
 `id`  VARCHAR(32),
 `pid` VARCHAR(32) NOT NULL,
 `name` VARCHAR(32) NOT NULL,
+`unit` VARCHAR(32) NULL,
 `isParent` tinyint(1)  NOT NULL,
 `ifData` INT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
