@@ -55,24 +55,32 @@ class WGetActor extends Actor {
     }
 
     case DataGet(a,m,index,region,time,selectId,third,count) => {
-      println(DataGet(a,m,index,region,time,selectId,third,count))
-      val getFuture = WS.url(base + s"/workspace/index?a=${a}&m=${m}&index=${index}&region=${region}&time=${time}&selectId=${selectId}&third=${third}").get()
-      getFuture.onComplete{
-        case Success(res:Response) => {
-          val dataActor = context.actorOf(DataActor.props())
-          Try(res.json) match {
-            case Success(json) => {
-              dataActor ! DataValue(a,m,region, res.json \ "tableData")
-              dataActor ! UnitValue(m,res.json \ "value" \ "index")
-            }
-            case Failure(_) => if(count < 3) {context.self ! DataGet(a,m,index,region,time,selectId,third,count + 1)}
-          }
-
-        }
-        case Failure(e) => println(e)
-      }
+      fetchIndexData(a, m, index, region, time, selectId, third, count)
+      fetchIndexData(a, m.replace("ks",""), index, region, time, selectId, third, count)
     }
 
+  }
+
+
+  def fetchIndexData(a: String, m: String, index: String, region: String, time: String, selectId: String, third: String, count: Int) {
+    println(DataGet(a, m, index, region, time, selectId, third, count))
+    val getFuture = WS.url(base + s"/workspace/index?a=${a}&m=${m}&index=${index}&region=${region}&time=${time}&selectId=${selectId}&third=${third}").get()
+    getFuture.onComplete {
+      case Success(res: Response) => {
+        val dataActor = context.actorOf(DataActor.props())
+        Try(res.json) match {
+          case Success(json) => {
+            dataActor ! DataValue(a, m, region, res.json \ "tableData")
+            dataActor ! UnitValue(m, res.json \ "value" \ "index")
+          }
+          case Failure(_) => if (count < 3) {
+            context.self ! DataGet(a, m, index, region, time, selectId, third, count + 1)
+          }
+        }
+
+      }
+      case Failure(e) => println(e)
+    }
   }
 
 }

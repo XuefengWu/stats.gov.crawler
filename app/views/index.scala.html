@@ -2,6 +2,36 @@
 
 @main("Welcome to Play") {
 
-    <ul id="treeDemo" class="ztree"></ul>
+<style type="text/css">
+
+
+    .node circle {
+    cursor: pointer;
+    fill: #fff;
+    stroke: steelblue;
+    stroke-width: 1.5px;
+    }
+
+    .node text {
+    font-size: 11px;
+    }
+
+    path.link {
+    fill: none;
+    stroke: #ccc;
+    stroke-width: 1.5px;
+    }
+
+</style>
+
+
+<div id="body">
+    <div id="footer">
+        d3.layout.tree
+        <div class="hint">click or option-click to expand or collapse</div>
+    </div>
+</div>
+<script src="@routes.Assets.at("javascripts/main.js")" type="text/javascript"></script>
+</body>
 
 }

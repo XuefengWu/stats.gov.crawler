@@ -4,11 +4,13 @@ import play.api.mvc._
 import akka.actor.{Props, ActorSystem}
 import actors.{DataGet, InitGet, WGetActor}
 import models.Index
-import play.api.libs.json.Json
+import play.api.libs.json._
+import services._
+
 
 object Application extends Controller {
 
-  implicit val indexWriter = Json.writes[Index]
+  implicit val indexTreeWriter = Json.writes[IndexTree]
 
   def index = Action {
     Ok(views.html.index("Gov stat index"))
@@ -36,10 +38,9 @@ object Application extends Controller {
     Ok("starting...")
   }
 
-
   def indexs = Action {
-    val indexs = Index.fetchDataIndexs("hgndks")
-    Ok(Json.toJson(indexs))
+    val tree = IndexService.buildIndexTree(Index.fetchAllDataIndexs())
+    Ok(Json.toJson(tree))
   }
 
 }

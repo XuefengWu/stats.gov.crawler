@@ -108,7 +108,7 @@ object Index {
     }
   }
 
-  implicit def byteToBoolean(isParent: Byte):Boolean = isParent == 1
+  implicit def byteToBoolean(isParent: Byte): Boolean = isParent == 1
 
   val simple = {
     get[String]("dbcode") ~
@@ -118,146 +118,159 @@ object Index {
       get[Boolean]("isParent") ~
       get[Option[Int]]("ifData") ~
       get[Option[String]]("unit") map {
-      case dbcode ~ id ~ pid ~ name ~ isParent ~ ifData ~ unit => Index(dbcode, id, pid, name, isParent, ifData,unit)
+      case dbcode ~ id ~ pid ~ name ~ isParent ~ ifData ~ unit => Index(dbcode, id, pid, name, isParent, ifData, unit)
     }
   }
 
-    def insert(values: Seq[Index]) = {
-      DB.withConnection {
-        implicit connection =>
-          val insertQuery = SQL( """insert into `index`(dbcode,id,pid,name,isParent,ifData) values (
+  def insert(values: Seq[Index]) = {
+    DB.withConnection {
+      implicit connection =>
+        val insertQuery = SQL( """insert into `index`(dbcode,id,pid,name,isParent,ifData) values (
                                 {dbcode},{id},{pid},{name},{isParent},{ifData})"""
-          )
+        )
 
-          values.foreach {
-            elem =>
-              if (isNotExist(elem)) {
-                insertQuery.on(
-                  'dbcode -> elem.dbcode,
-                  'id -> elem.id,
-                  'pid -> elem.pId,
-                  'name -> elem.name,
-                  'isParent -> elem.isParent,
-                  'ifData -> elem.ifData
-                ).executeUpdate()
-              }
-          }
-      }
+        values.foreach {
+          elem =>
+            if (isNotExist(elem)) {
+              insertQuery.on(
+                'dbcode -> elem.dbcode,
+                'id -> elem.id,
+                'pid -> elem.pId,
+                'name -> elem.name,
+                'isParent -> elem.isParent,
+                'ifData -> elem.ifData
+              ).executeUpdate()
+            }
+        }
     }
+  }
 
-    def isNotExist(elem: Index) = {
-      DB.withConnection {
-        implicit connection =>
-          val totalRows = SQL(
-            """
+  def isNotExist(elem: Index) = {
+    DB.withConnection {
+      implicit connection =>
+        val totalRows = SQL(
+          """
           select count(id) from `index`
           where id = {id} and dbcode = {dbcode}
-            """
-          ).on(
-              'id -> elem.id,
-              'dbcode -> elem.dbcode
-            ).as(scalar[Long].single)
-          totalRows == 0
-      }
+          """
+        ).on(
+            'id -> elem.id,
+            'dbcode -> elem.dbcode
+          ).as(scalar[Long].single)
+        totalRows == 0
     }
+  }
 
-    def fetchDataIndexs(dbcode: String): Seq[Index] = {
-      DB.withConnection {
-        implicit connection =>
-          SQL(
-            """
+  def fetchDataIndexs(dbcode: String): Seq[Index] = {
+    DB.withConnection {
+      implicit connection =>
+        SQL(
+          """
           select * from `index`
           where dbcode = {dbcode} and ifdata = 1
-          order by id
-            """
-          ).on(
-              'dbcode -> dbcode
-            ).as(simple *)
-      }
+          order by id desc
+          """
+        ).on(
+            'dbcode -> dbcode
+          ).as(simple *)
     }
+  }
 
-    def fetchRegion(): Seq[Region] = {
-      DB.withConnection {
-        implicit connection =>
-          SQL(
-            """
+  def fetchAllDataIndexs(): Seq[Index] = {
+    DB.withConnection {
+      implicit connection =>
+        SQL(
+          """
+          select * from `index`
+          order by dbcode,id
+          """
+        ).as(simple *)
+    }
+  }
+
+
+  def fetchRegion(): Seq[Region] = {
+    DB.withConnection {
+      implicit connection =>
+        SQL(
+          """
           select id,name from `region`
-            """
-          ).as(region *)
-      }
+          """
+        ).as(region *)
     }
+  }
 
-    def getIndex(dbcode: String, id:String): Option[Index] = {
-      DB.withConnection {
-        implicit connection =>
-          SQL(
-            """
+  def getIndex(dbcode: String, id: String): Option[Index] = {
+    DB.withConnection {
+      implicit connection =>
+        SQL(
+          """
           select * from `index`
           where dbcode = {dbcode} and id = {id}
-            """
-          ).on(
-              'dbcode -> dbcode,
-              'id -> id
-            ).as(simple.singleOpt)
-      }
+          """
+        ).on(
+            'dbcode -> dbcode,
+            'id -> id
+          ).as(simple.singleOpt)
     }
+  }
 
-    def updateUnit(dbcode: String, id: String, unit: String) = {
-      DB.withConnection {
-        implicit connection =>
-          SQL(
-            """
+  def updateUnit(dbcode: String, id: String, unit: String) = {
+    DB.withConnection {
+      implicit connection =>
+        SQL(
+          """
           update `index` set `unit` = {unit}
           where dbcode = {dbcode} and id = {id}
-            """
-          ).on(
-              'dbcode -> dbcode,
-              'id -> id,
-              'unit -> unit
-            ).executeUpdate()
-      }
-
+          """
+        ).on(
+            'dbcode -> dbcode,
+            'id -> id,
+            'unit -> unit
+          ).executeUpdate()
     }
 
   }
 
-  object Moment {
+}
 
-    def insert(values: Seq[Moment]) = {
-      DB.withConnection {
-        implicit connection =>
-          val insertQuery = SQL( """insert into moment(dimension,dbcode,`value`) values (
+object Moment {
+
+  def insert(values: Seq[Moment]) = {
+    DB.withConnection {
+      implicit connection =>
+        val insertQuery = SQL( """insert into moment(dimension,dbcode,`value`) values (
                                 {dimension},{dbcode},{value})"""
-          )
+        )
 
-          values.foreach {
-            elem =>
-              if (isNotExist(elem)) {
-                insertQuery.on(
-                  'dimension -> elem.dimension,
-                  'dbcode -> elem.dbcode,
-                  'value -> elem.value
-                ).executeUpdate()
-              }
-          }
-      }
+        values.foreach {
+          elem =>
+            if (isNotExist(elem)) {
+              insertQuery.on(
+                'dimension -> elem.dimension,
+                'dbcode -> elem.dbcode,
+                'value -> elem.value
+              ).executeUpdate()
+            }
+        }
     }
+  }
 
-    def isNotExist(elem: Moment) = {
-      DB.withConnection {
-        implicit connection =>
-          val totalRows = SQL(
-            """
+  def isNotExist(elem: Moment) = {
+    DB.withConnection {
+      implicit connection =>
+        val totalRows = SQL(
+          """
           select count(id) from `moment`
           where dimension = {dimension} and dbcode = {dbcode} and `value` = {value}
-            """
-          ).on(
-              'dimension -> elem.dimension,
-              'dbcode -> elem.dbcode,
-              'value -> elem.value
-            ).as(scalar[Long].single)
-          totalRows == 0
-      }
+          """
+        ).on(
+            'dimension -> elem.dimension,
+            'dbcode -> elem.dbcode,
+            'value -> elem.value
+          ).as(scalar[Long].single)
+        totalRows == 0
     }
-
   }
+
+}
