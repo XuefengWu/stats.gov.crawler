@@ -64,8 +64,9 @@ function update(source) {
 
   nodeEnter.append("svg:text")
       .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
-      .attr("dy", ".35em")
-      .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+      .attr("dy", "-1em")
+      //.attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+      .attr("text-anchor", "start")
       .text(function(d) { return d.name; })
       .style("fill-opacity", 1e-6);
 
@@ -75,7 +76,7 @@ function update(source) {
       .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
 
   nodeUpdate.select("circle")
-      .attr("r", 4.5)
+      .attr("r", 10)
       .style("fill", function(d) { return (d._children && d._children.length > 0) ? "lightsteelblue" : "#fff"; });
 
   nodeUpdate.select("text")
