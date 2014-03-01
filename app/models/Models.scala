@@ -32,7 +32,7 @@ case object sj extends Dimension
 case object zb extends Dimension
 
 
-case class Data(a: String, decode: String, regin: String, index: String, date: String, value: Double)
+case class Data(a: String, decode: String, region: String, index: String, date: String, value: Double)
 
 case class Index(dbcode: String, id: String, pId: String, name: String, isParent: Boolean, ifData: Option[Int], unit: Option[String] = None)
 
@@ -46,19 +46,19 @@ object Data {
   val simple = {
     get[String]("data.a") ~
       get[String]("data.decode") ~
-      get[String]("data.regin") ~
+      get[String]("data.region") ~
       get[String]("data.`index`") ~
       get[String]("data.`date`") ~
       get[Double]("data.`value`") map {
-      case a ~ decode ~ regin ~ index ~ date ~ value => Data(a, decode, regin, index, date, value)
+      case a ~ decode ~ region ~ index ~ date ~ value => Data(a, decode, region, index, date, value)
     }
   }
 
   def insert(values: Seq[Data]) = {
     DB.withConnection {
       implicit connection =>
-        val insertQuery = SQL( """insert into data(a,decode,regin,`index`,`date`,`value`) values (
-                             {a},{decode},{regin},{index},{date},{value})"""
+        val insertQuery = SQL( """insert into data(a,decode,region,`index`,`date`,`value`) values (
+                             {a},{decode},{region},{index},{date},{value})"""
         )
 
         values.foreach {
@@ -67,7 +67,7 @@ object Data {
               insertQuery.on(
                 'a -> elem.a,
                 'decode -> elem.decode,
-                'regin -> elem.regin,
+                'region -> elem.region,
                 'index -> elem.index,
                 'date -> elem.date,
                 'value -> elem.value
@@ -83,12 +83,12 @@ object Data {
         val totalRows = SQL(
           """
           select count(id) from data
-          where a = {a} and decode = {decode} and regin = {regin} and `index` = {index} and date = {date}
+          where a = {a} and decode = {decode} and region = {region} and `index` = {index} and date = {date}
           """
         ).on(
             'a -> elem.a,
             'decode -> elem.decode,
-            'regin -> elem.regin,
+            'region -> elem.region,
             'index -> elem.index,
             'date -> elem.date
           ).as(scalar[Long].single)
